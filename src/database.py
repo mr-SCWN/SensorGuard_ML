@@ -3,7 +3,7 @@ import pandas as pd
 
 CSV_PATH = "data/raw/ai4i2020.csv"
 DB_PATH = "data/processed/sensorguard.db"
-SQL_PATH = "sql/create_table.sql"
+SQL_PATH = "sql/create_tables.sql"
 
 # Connect to SQLite database
 connection = sqlite3.connect(DB_PATH)
