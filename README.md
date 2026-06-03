@@ -20,3 +20,12 @@ The goal of this project is to predict machine failure based on operational para
 ## Tech stack
 
 Python, SQL, Pandas, NumPy, scikit-learn, FastAPI, Docker
+
+---
+
+Activate venv
+```
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+---
