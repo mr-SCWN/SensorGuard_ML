@@ -18,7 +18,7 @@ CSV dataset -> SQLite database -> SQL queries -> Pandas EDA -> ML model -> FastA
 |---|---|---|
 | Module 0 — Project setup | Done | Project structure, virtual environment, requirements.txt and GitHub repository |
 | Module 1 — Dataset + SQL layer | Done | Dataset inspection, SQLite database, SQL table, CSV loading and analysis queries |
-| Module 2 — Pandas + EDA | In progress | Load data from SQL into Pandas, perform EDA and feature engineering |
+| Module 2 — Pandas + EDA | Done | Load data from SQL into Pandas, perform EDA and feature engineering |
 | Module 3 — ML baseline | Planned | Train and evaluate baseline machine learning models |
 | Module 4 — Prediction function | Planned | Save/load model and create local prediction function |
 | Module 5 — FastAPI | Planned | Expose prediction through REST API |
@@ -35,12 +35,16 @@ SensorGuard_ML/
 ├── docs/
 ├── models/
 ├── notebooks/
+│   └── 01_eda_and_modeling.ipynb
 ├── sql/
 │   ├── create_tables.sql
 │   └── analysis_queries.sql
 ├── src/
+│   ├── check_query.py
+│   ├── database.py
+│   ├── eda.py
 │   ├── inspect_data.py
-│   └── database.py
+│   └── preprocessing.py
 ├── requirements.txt
 └── README.md
 ```
@@ -64,6 +68,23 @@ SensorGuard_ML/
 - Renamed raw CSV columns to SQL-friendly `snake_case` names
 - Loaded 10,000 rows into SQLite
 - Wrote SQL analysis queries using `SELECT`, `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, `COUNT`, `AVG`, `SUM` and `DISTINCT`
+
+### Module 2 — Pandas + EDA
+
+- Loaded data from SQLite into a Pandas DataFrame
+- Created reusable preprocessing functions:
+  - `load_data_from_sql()`
+  - `add_features(df)`
+- Added engineered features:
+  - `temperature_difference`
+  - `power_proxy`
+- Performed basic exploratory data analysis
+- Checked dataset shape, data types and descriptive statistics
+- Checked missing values and duplicated rows
+- Analyzed target distribution and class imbalance
+- Compared average feature values for failure and non-failure cases
+- Added basic plots for target distribution and selected numerical features
+- Created `notebooks/01_eda_and_modeling.ipynb`
 
 ## Tech stack
 
@@ -95,6 +116,11 @@ Expected output:
 ```text
 Loaded rows: 10000
 ```
+
+Run basic EDA script:
+
+```powershell
+python src/eda.py
 
 ## Interview explanation
 

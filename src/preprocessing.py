@@ -1,7 +1,9 @@
 import pandas as pd
 import sqlite3
+from pathlib import Path 
 
-DB_PATH = "data/processed/sensorguard.db"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = PROJECT_ROOT / "data" / "processed" / "sensorguard.db"
 
 def load_data_from_sql():
     # 1. Connect to SQLite database

@@ -1,19 +1,20 @@
 # Learning Log — Module 2: Pandas + EDA
 
-Status: In progress
+Status: Completed
 
 ## Goal of the module
 
-The goal of this module is to understand the dataset before training a machine learning model.
+The goal of this module was to understand the dataset before training a machine learning model.
 
-Instead of directly running `model.fit()`, I first analyzed the data quality, class balance and basic feature behavior.
+Instead of directly running `model.fit()`, I first analyzed data quality, class balance, feature behavior and basic relationships between features and the target variable.
 
-## What I did so far
+## What I did
 
 - Loaded data from SQLite into a Pandas DataFrame
 - Created reusable preprocessing functions
 - Added engineered features
 - Performed basic EDA in a Python script
+- Created an EDA notebook
 - Checked dataset shape
 - Inspected first rows
 - Checked data types
@@ -22,12 +23,15 @@ Instead of directly running `model.fit()`, I first analyzed the data quality, cl
 - Checked duplicated rows
 - Analyzed target distribution
 - Compared average feature values for failure and non-failure cases
+- Created basic plots for target distribution and selected numerical features
+- Wrote conclusions from the analysis
 
 ## Files created
 
 ```text
 src/preprocessing.py
 src/eda.py
+notebooks/01_eda_and_modeling.ipynb
 ```
 
 ## Functions created
@@ -110,6 +114,16 @@ machine_failure = 0: 96.61%
 machine_failure = 1: 3.39%
 ```
 
+## Basic plots created
+
+The notebook contains basic plots for:
+
+- target distribution
+- torque distribution
+- tool wear distribution
+- power proxy distribution
+- average torque by target
+
 ## Key observations
 
 The dataset is strongly imbalanced.
@@ -125,6 +139,8 @@ Average feature values show that failure cases tend to have:
 - higher power proxy
 - lower rotational speed
 
+This suggests that machine load and tool wear may be important factors for predicting machine failure.
+
 ## What I learned
 
 - How to load data from SQLite into Pandas
@@ -133,6 +149,8 @@ Average feature values show that failure cases tend to have:
 - How to check duplicated rows
 - How to analyze class imbalance
 - Why accuracy can be misleading for imbalanced classification problems
+- How to compare average feature values by target
+- How to create basic plots with Matplotlib
 - How feature engineering can create more informative variables from raw sensor data
 
 ## Interview explanation
@@ -145,12 +163,14 @@ Polish:
 
 > Najpierw sprawdziłem jakość danych w Pandas: typy kolumn, brakujące wartości, duplikaty oraz rozkład zmiennej docelowej. Zobaczyłem, że dane są mocno niezbalansowane, ponieważ awarie stanowią tylko małą część wszystkich obserwacji. Dlatego sama accuracy może być myląca. Dodałem też nowe cechy, takie jak różnica temperatur oraz przybliżony wskaźnik obciążenia maszyny.
 
-## Current takeaway
+## Key takeaway
 
-After this part of Module 2, I understand the basic EDA workflow:
+After Module 2, I understand the basic EDA workflow:
 
 ```text
-SQLite -> Pandas DataFrame -> basic EDA -> feature engineering
+SQLite -> Pandas DataFrame -> basic EDA -> feature engineering -> plots -> conclusions
 ```
 
 I also understand why class imbalance is important and why model evaluation should not rely only on accuracy.
+
+The dataset is now ready for the next step: training baseline machine learning models.
