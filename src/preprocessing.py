@@ -31,13 +31,34 @@ def add_features(df):
     # Return updated DataFrame    
     return df_copy
 
+def prepare_features_and_target(df):
+    X = df.drop(columns = ['udi', 'product_id', 'machine_failure', 'twf', 'hdf', 'pwf', 'osf', 'rnf'])
+    y = df['machine_failure']
+    return X, y
+
 
 if __name__ == "__main__":
+    ## ----- LOAD DATA
     df = load_data_from_sql() # verification load_data_from_sql
     print(df.head())
     print(df.shape)
 
+    ## ----- ADD FEATURES
     df_with_features = add_features(df) # verification add_features 
     print(df_with_features[['air_temperature_k', 'process_temperature_k', 'temperature_difference',
             'torque_nm', 'rotational_speed_rpm', 'power_proxy']].head())
     print(df_with_features.shape)
+
+    ## - FEATURES AND TARGET
+    X, y = prepare_features_and_target(df_with_features)
+    print("\n=== FEATURES HEAD ===")
+    print(X.head())
+
+    print("\n=== FEATURES SHAPE ===")
+    print(X.shape)
+
+    print("\n=== TARGET DISTRIBUTION ===")
+    print(y.value_counts())
+
+    print("\n=== TARGET SHAPE ===")
+    print(y.shape)  
