@@ -19,7 +19,7 @@ CSV dataset -> SQLite database -> SQL queries -> Pandas EDA -> ML model -> FastA
 | Module 0 — Project setup | Done | Project structure, virtual environment, requirements.txt and GitHub repository |
 | Module 1 — Dataset + SQL layer | Done | Dataset inspection, SQLite database, SQL table, CSV loading and analysis queries |
 | Module 2 — Pandas + EDA | Done | Load data from SQL into Pandas, perform EDA and feature engineering |
-| Module 3 — ML baseline | Planned | Train and evaluate baseline machine learning models |
+| Module 3 — ML baseline | In progress | Train and evaluate baseline machine learning models |
 | Module 4 — Prediction function | Planned | Save/load model and create local prediction function |
 | Module 5 — FastAPI | Planned | Expose prediction through REST API |
 | Module 6 — Docker + README | Planned | Containerize project and finalize documentation |
