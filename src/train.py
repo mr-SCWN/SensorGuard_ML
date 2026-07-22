@@ -19,7 +19,6 @@ from sklearn.metrics import (
 )
 
 
-
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
