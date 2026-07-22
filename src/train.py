@@ -1,4 +1,6 @@
 import pandas as pd
+from pathlib import Path
+import joblib
 
 from preprocessing import load_data_from_sql, add_features, prepare_features_and_target
 
@@ -17,8 +19,11 @@ from sklearn.metrics import (
 )
 
 
+
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MODEL_PATH = PROJECT_ROOT / "models" / "random_forest.joblib"
 
 NUMERIC_FEATURES = [
     "air_temperature_k",
@@ -132,6 +137,15 @@ def train_and_evaluate_model(model_name, model, X_train, X_test, y_train, y_test
     return metrics
 
 
+def save_model(model, model_path):
+    """Save trained model to disk."""
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, model_path)
+
+    print(f"\n=== MODEL SAVED ===")
+    print(f"Saved model to: {model_path}")
+
+
 def main():
     # 1. Load data from SQLite
     df = load_data_from_sql()
@@ -178,6 +192,9 @@ def main():
 
     print("\n=== METRICS COMPARISON ===")
     print(metrics_df.round(4))
+
+    # 8. Save the best model
+    save_model(models["RANDOM FOREST"], MODEL_PATH)
 
 
 if __name__ == "__main__":
