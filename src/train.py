@@ -1,13 +1,135 @@
 import pandas as pd
 
 from preprocessing import load_data_from_sql, add_features, prepare_features_and_target
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix,
+)
+
+
+RANDOM_STATE = 42
+TEST_SIZE = 0.2
+
+NUMERIC_FEATURES = [
+    "air_temperature_k",
+    "process_temperature_k",
+    "rotational_speed_rpm",
+    "torque_nm",
+    "tool_wear_min",
+    "temperature_difference",
+    "power_proxy",
+]
+
+CATEGORICAL_FEATURES = ["product_type"]
+
+
+def create_preprocessor():
+    """Create preprocessing pipeline for numerical and categorical features."""
+    return ColumnTransformer(
+        transformers=[
+            ("num", StandardScaler(), NUMERIC_FEATURES),
+            ("cat", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL_FEATURES),
+        ]
+    )
+
+
+def create_logistic_regression_model():
+    """Create Logistic Regression pipeline."""
+    return Pipeline(
+        steps=[
+            ("preprocessor", create_preprocessor()),
+            (
+                "classifier",
+                LogisticRegression(
+                    max_iter=1000,
+                    class_weight="balanced",
+                    random_state=RANDOM_STATE,
+                ),
+            ),
+        ]
+    )
+
+
+def create_random_forest_model():
+    """Create Random Forest pipeline."""
+    return Pipeline(
+        steps=[
+            ("preprocessor", create_preprocessor()),
+            (
+                "classifier",
+                RandomForestClassifier(
+                    n_estimators=100,
+                    class_weight="balanced",
+                    random_state=RANDOM_STATE,
+                ),
+            ),
+        ]
+    )
+
+
+def evaluate_model(model_name, y_true, y_pred):
+    """Calculate and print model evaluation metrics."""
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, zero_division=0)
+    recall = recall_score(y_true, y_pred, zero_division=0)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
+    conf_matrix = confusion_matrix(y_true, y_pred)
+
+    print(f"\n=== {model_name} METRICS ===")
+    print(f"Accuracy:  {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall:    {recall:.4f}")
+    print(f"F1-score:  {f1:.4f}")
+
+    print(f"\n=== {model_name} CONFUSION MATRIX ===")
+    print(conf_matrix)
+
+    return {
+        "model": model_name,
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1,
+    }
+
+
+def print_data_summary(X_train, X_test, y_train, y_test):
+    """Print basic information about train and test sets."""
+    print("\n=== DATA SHAPES ===")
+    print(f"X_train shape: {X_train.shape}")
+    print(f"X_test shape:  {X_test.shape}")
+    print(f"y_train shape: {y_train.shape}")
+    print(f"y_test shape:  {y_test.shape}")
+
+    print("\n=== TRAIN TARGET DISTRIBUTION ===")
+    print(y_train.value_counts())
+
+    print("\n=== TEST TARGET DISTRIBUTION ===")
+    print(y_test.value_counts())
+
+
+def train_and_evaluate_model(model_name, model, X_train, X_test, y_train, y_test):
+    """Train model, make predictions and evaluate results."""
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+
+    metrics = evaluate_model(model_name, y_test, y_pred)
+
+    print(f"\n=== {model_name} PREDICTIONS DISTRIBUTION ===")
+    print(pd.Series(y_pred).value_counts().sort_index())
+
+    return metrics
 
 
 def main():
@@ -17,93 +139,45 @@ def main():
     # 2. Add engineered features
     df_with_features = add_features(df)
 
-    # 3. Prepare X and y
+    # 3. Prepare features and target
     X, y = prepare_features_and_target(df_with_features)
 
     # 4. Split data into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=0.2,
-        random_state=42,
-        stratify=y
+        test_size=TEST_SIZE,
+        random_state=RANDOM_STATE,
+        stratify=y,
     )
 
-    # 5. Define feature groups
-    numeric_features = [
-        "air_temperature_k",
-        "process_temperature_k",
-        "rotational_speed_rpm",
-        "torque_nm",
-        "tool_wear_min",
-        "temperature_difference",
-        "power_proxy",
-    ]
+    print_data_summary(X_train, X_test, y_train, y_test)
 
-    categorical_features = ["product_type"]
+    # 5. Create models
+    models = {
+        "LOGISTIC REGRESSION": create_logistic_regression_model(),
+        "RANDOM FOREST": create_random_forest_model(),
+    }
 
-    # 6. Define preprocessing for numerical and categorical columns
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ("num", StandardScaler(), numeric_features),
-            ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features),
-        ]
-    )
+    # 6. Train and evaluate models
+    metrics_results = []
 
-    # 7. Create Logistic Regression pipeline
-    logistic_regression_model = Pipeline(
-        steps=[
-            ("preprocessor", preprocessor),
-            (
-                "classifier",
-                LogisticRegression(
-                    max_iter=1000,
-                    class_weight="balanced",
-                    random_state=42
-                )
-            ),
-        ]
-    )
+    for model_name, model in models.items():
+        metrics = train_and_evaluate_model(
+            model_name,
+            model,
+            X_train,
+            X_test,
+            y_train,
+            y_test,
+        )
+        metrics_results.append(metrics)
 
-    # 8. Train the model
-    logistic_regression_model.fit(X_train, y_train)
+    # 7. Print comparison table
+    metrics_df = pd.DataFrame(metrics_results)
 
-    # 9. Make predictions on test data
-    y_pred = logistic_regression_model.predict(X_test)
-
-    # METRICS
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    conf_matrix = confusion_matrix(y_test, y_pred)
-
-    print("\n=== LOGISTIC REGRESSION METRICS ===")
-    print(f"Accuracy:  {accuracy:.4f}")
-    print(f"Precision: {precision:.4f}")
-    print(f"Recall:    {recall:.4f}")
-    print(f"F1-score:  {f1:.4f}")
-
-    print("\n=== CONFUSION MATRIX ===")
-    print(conf_matrix)
-    
-    # 10. Print shapes
-    print("\n=== DATA SHAPES ===")
-    print(f"X_train shape: {X_train.shape}")
-    print(f"X_test shape: {X_test.shape}")
-    print(f"y_train shape: {y_train.shape}")
-    print(f"y_test shape: {y_test.shape}")
-
-    # 11. Print target distribution
-    print("\n=== TRAIN TARGET DISTRIBUTION ===")
-    print(y_train.value_counts())
-
-    print("\n=== TEST TARGET DISTRIBUTION ===")
-    print(y_test.value_counts())
-
-    # 12. Print prediction distribution
-    print("\n=== LOGISTIC REGRESSION PREDICTIONS DISTRIBUTION ===")
-    print(pd.Series(y_pred).value_counts().sort_index())
+    print("\n=== METRICS COMPARISON ===")
+    print(metrics_df.round(4))
 
 
 if __name__ == "__main__":
